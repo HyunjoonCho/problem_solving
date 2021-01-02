@@ -3,40 +3,48 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
-
-	// "sort"
 	"strconv"
+	"time"
 )
 
 var sc *bufio.Scanner
-var nums []int //maybe it helps..?
+var nums []int
 
-func quickSort(pivot, left, right int) {
-	if left > right {
+func quickSort(left, right int) {
+	if left >= right {
 		return
 	}
-	l := left
-	r := right
-	pv := nums[pivot]
-	for {
-		for r >= l && nums[r] >= pv {
-			r--
-		}
-		for r >= l && nums[l] <= pv {
-			l++
-		}
-		if l > r {
-			break
-		} else {
-			nums[l], nums[r] = nums[r], nums[l]
+
+	src := rand.NewSource(time.Now().UnixNano())
+	ran := rand.New(src)
+
+	pivot := ran.Intn(right-left) + left
+	nums[right], nums[pivot] = nums[pivot], nums[right]
+
+	i := left
+	curr := left
+	pv := nums[right]
+
+	// fmt.Println("before", i, nums)
+
+	for ; i < right; i++ {
+		if nums[i] < pv {
+			nums[i], nums[curr] = nums[curr], nums[i]
+			curr++
 		}
 	}
-	nums[r], nums[pivot] = nums[pivot], nums[r]
-	quickSort(pivot, left, r-1)
-	quickSort(r+1, r+2, right)
+	// No need for r decrease > l increase?
+
+	nums[curr], nums[right] = nums[right], nums[curr]
+	// fmt.Println("after", curr, nums)
+
+	quickSort(left, curr-1)
+	quickSort(curr+1, right)
 }
-func scanInt() int { //to reduce scanning time
+
+func scanInt() int {
 	sc.Scan()
 	n, _ := strconv.Atoi(sc.Text())
 	return n
@@ -49,8 +57,7 @@ func main() {
 	for i := 0; i < n; i++ {
 		nums[i] = scanInt()
 	}
-	quickSort(0, 1, n-1)
-	// sort.Ints(nums)
+	quickSort(0, n-1)
 	writer := bufio.NewWriter(os.Stdout)
 	for _, i := range nums {
 		fmt.Fprintf(writer, "%d\n", i)
