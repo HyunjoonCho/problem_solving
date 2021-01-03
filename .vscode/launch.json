@@ -5,6 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "Launch P13460",
+            "request": "launch",
+            "mainClass": "javalang.P13460",
+            "projectName": "problem_solving_efd933f7"
+        },
+        {
+            "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "javalang.Main",
+            "projectName": "problem_solving_efd933f7"
+        },
+        {
             "name": "(gdb) 시작",
             "type": "cppdbg",
             "request": "launch",
