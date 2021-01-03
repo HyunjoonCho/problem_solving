@@ -7,17 +7,21 @@ func main() {
 	fmt.Scanf("%d", &n)
 	bound := 0
 	tmp := n
+    result := 0
+
 	for {
-		tmp = tmp / 10
 		if tmp != 0 {
 			bound += 9
 		} else {
 			break
 		}
+		tmp = tmp / 10
 	}
+
 	if bound > n {
-		bound = n
+		bound = n - 1 
 	}
+
 	for i := n - bound; i < n; i++ {
 		sum := i
 		tmp := i
@@ -30,9 +34,10 @@ func main() {
 			}
 		}
 		if sum == n {
-			fmt.Println(i)
-			return
+			result = i
+			break
 		}
 	}
-	fmt.Println(0)
+	
+	fmt.Println(result)
 }
