@@ -205,7 +205,7 @@ class P13460 {
                 if (!blueEnd) {
                     board[by][bx] = '#';
                 }
-                if ((rx = moveUp(rx, ry)) == END) {
+                if ((rx = moveLeft(rx, ry)) == END) {
                     redEnd= true;
                 }
                 if (!blueEnd) {
@@ -226,7 +226,7 @@ class P13460 {
         } else if (redEnd) {
             return 1;
         }
-        
+
         return 1 + min(minMovementUp(rx, ry, bx, by, depth), minMovementDown(rx, ry, bx, by, depth));
     }
 
@@ -252,7 +252,9 @@ class P13460 {
                 if ((bx = moveRight(bx, by)) == END) {
                     blueEnd = true;
                 }
-                board[ry][rx] = '.';
+                if (!redEnd) {
+                    board[ry][rx] = '.';
+                }
             } else {
                 if ((bx = moveRight(bx, by)) == END) {
                     blueEnd = true;
@@ -346,5 +348,11 @@ class P13460 {
 2: down > right
 - even R does not move at first, it can be a solution
 
-
+5 9
+#########
+##......#
+##.#.#O##
+#.B.R####
+#########
+5? WHY? 
  */
