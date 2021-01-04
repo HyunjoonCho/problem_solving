@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch ArrayCopyTest",
+            "request": "launch",
+            "mainClass": "javalang.ArrayCopyTest",
+            "projectName": "problem_solving_efd933f7"
+        },
+        {
+            "type": "java",
+            "name": "Launch P12100",
+            "request": "launch",
+            "mainClass": "javalang.P12100",
+            "projectName": "problem_solving_efd933f7"
+        },
+        {
+            "type": "java",
             "name": "Launch P13460",
             "request": "launch",
             "mainClass": "javalang.P13460",
