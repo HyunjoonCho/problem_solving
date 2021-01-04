@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 class P13460 {
     static int height, width;
     static char[][] board;
+    static final int[] DX = {0, 0, -1, 1};
+    static final int[] DY = {-1, 1, 0, 0};
     static final int FAIL = 20;
     static final int END = 15;
 
@@ -19,280 +21,121 @@ class P13460 {
         return minAB < minCD ? minAB : minCD;
     }
 
-    public static int moveUp(int x, int y) {
+    public static void block (boolean isEnded, int y, int x) {
+        if (!isEnded) {
+            board[y][x] = '#';
+        }
+    }
+
+    public static void unblock (boolean isEnded, int y, int x) {
+        if (!isEnded) {
+            board[y][x] = '.';
+        }
+    }
+
+    // U D L R
+    public static int move(int x, int y, int dir) {
+        int dx = DX[dir];
+        int dy = DY[dir];
+
         char currentPos;
-        while ((currentPos = board[--y][x]) != '#') {
+
+        do {
+            x += dx;
+            y += dy;
+            currentPos = board[y][x];
             if (currentPos == 'O') {
                 return END;
             }
-        }
-        return y + 1;
+        } while(currentPos != '#');
+        return dir < 2? y - dy : x - dx;
     }
 
-    public static int moveDown(int x, int y) {
-        char currentPos;
-        while ((currentPos = board[++y][x]) != '#') {
-            if (currentPos == 'O') {
-                return END;
-            }
-        }
-        return y - 1;
-    }
-
-    public static int moveLeft(int x, int y) {
-        char currentPos;
-        while ((currentPos = board[y][--x]) != '#') {
-            if (currentPos == 'O') {
-                return END;
-            }
-        }
-        return x + 1;
-    }
-
-    public static int moveRight(int x, int y) {
-        char currentPos;
-        while ((currentPos = board[y][++x]) != '#') {
-            if (currentPos == 'O') {
-                return END;
-            }
-        }
-        return x - 1;
-    }
-
-    public static int minMovementUp(int rx, int ry, int bx, int by, int depth) {
+    public static int minMovement(int rx, int ry, int bx, int by, int depth, int dir) {
         if (depth++ >= 10) {
             return FAIL;
         }
 
-        boolean redEnd = false;
-        boolean blueEnd = false;
+        boolean isRedEnded = false;
+        boolean isBlueEnded = false;
 
-        if (rx == bx) {
-            if (ry - 1 == by && board[by - 1][bx] == '#') {
-                return FAIL;
-            }
-            if (ry < by) {
-                if ((ry = moveUp(rx, ry)) == END) {
-                    redEnd = true;
-                }
-                if (!redEnd) {
-                    board[ry][rx] = '#';
-                }
-                if ((by = moveUp(bx, by)) == END) {
-                    blueEnd = true;
-                }
-                if (!redEnd) {
-                    board[ry][rx] = '.';
+        // vertical or horizontal
+        if (dir < 2) {
+            if (rx == bx) {
+                // (ry < by) ^ (dir % 2 == 1) 
+                // (dir == 0 && ry < by) || (dir == 1 && ry > by)
+                if ((ry < by) ^ (dir % 2 == 1)) {
+                    if ((ry = move(rx, ry, dir)) == END) {
+                        isRedEnded = true;
+                    }
+                    block(isRedEnded, ry, rx);
+                    if ((by = move(bx, by, dir)) == END) {
+                        isBlueEnded= true;
+                    }
+                    unblock(isRedEnded, ry, rx);
+                } else {
+                    if ((by = move(bx, by, dir)) == END) {
+                        isBlueEnded= true;
+                    }
+                    block(isBlueEnded, by, bx);
+                    if ((ry = move(rx, ry, dir)) == END) {
+                        isRedEnded = true;
+                    }
+                    unblock(isBlueEnded, by, bx);
                 }
             } else {
-                if ((by = moveUp(bx, by)) == END) {
-                    blueEnd = true;
+                if ((ry = move(rx, ry, dir)) == END) {
+                    isRedEnded = true;
                 }
-                if (!blueEnd) {
-                    board[by][bx] = '#';
-                }
-                if ((ry = moveUp(rx, ry)) == END) {
-                    redEnd= true;
-                }
-                if (!blueEnd) {
-                    board[by][bx] = '.';
+                if ((by = move(bx, by, dir)) == END) {
+                    isBlueEnded = true;
                 }
             }
         } else {
-            if ((ry = moveUp(rx, ry)) == END) {
-                redEnd = true;
-            }
-            if ((by = moveUp(bx, by)) == END) {
-                blueEnd = true;
-            }
-        }
-        
-        if (blueEnd) {
-            return FAIL;
-        } else if (redEnd) {
-            return 1;
-        }
-
-        return 1 + min(minMovementLeft(rx, ry, bx, by, depth), minMovementRight(rx, ry, bx, by, depth));
-    }
-
-    public static int minMovementDown(int rx, int ry, int bx, int by, int depth) {
-        if (depth++ >= 10) {
-            return FAIL;
-        }
-
-        boolean redEnd = false;
-        boolean blueEnd = false;
-
-        if (rx == bx) {
-            if (ry + 1 == by && board[by + 1][bx] == '#') {
-                return FAIL;
-            }
-            if (ry > by) {
-                if ((ry = moveDown(rx, ry)) == END) {
-                    redEnd = true;
-                }
-                if (!redEnd) {
-                    board[ry][rx] = '#';
-                }
-                if ((by = moveDown(bx, by)) == END) {
-                    blueEnd = true;
-                }
-                if (!redEnd) {
-                    board[ry][rx] = '.';
+            if (ry == by) {
+                if ((rx < bx) ^ (dir % 2 == 1)) {
+                    if ((rx = move(rx, ry, dir)) == END) {
+                        isRedEnded = true;
+                    }
+                    block(isRedEnded, ry, rx);
+                    if ((bx = move(bx, by, dir)) == END) {
+                        isBlueEnded = true;
+                    }
+                    unblock(isRedEnded, ry, rx);
+                } else {
+                    if ((bx = move(bx, by, dir)) == END) {
+                        isBlueEnded = true;
+                    }
+                    block(isBlueEnded, by, bx);
+                    if ((rx = move(rx, ry, dir)) == END) {
+                        isRedEnded = true;
+                    }
+                    unblock(isBlueEnded, by, bx);
                 }
             } else {
-                if ((by = moveDown(bx, by)) == END) {
-                    blueEnd = true;
+                if ((rx = move(rx, ry, dir)) == END) {
+                    isRedEnded = true;
                 }
-                if (!blueEnd) {
-                    board[by][bx] = '#';
-                }
-                if ((ry = moveDown(rx, ry)) == END) {
-                    redEnd= true;
-                }
-                if (!blueEnd) {
-                    board[by][bx] = '.';
-                }
-            }
-        } else {
-            if ((ry = moveDown(rx, ry)) == END) {
-                redEnd = true;
-            }
-            if ((by = moveDown(bx, by)) == END) {
-                blueEnd = true;
+                if ((bx = move(bx, by, dir)) == END) {
+                    isBlueEnded= true;
+                }                    
             }
         }
-        
-        if (blueEnd) {
+
+        if (isBlueEnded) {
             return FAIL;
-        } else if (redEnd) {
+        } else if (isRedEnded) {
             return 1;
         }
 
-        return 1 + min(minMovementLeft(rx, ry, bx, by, depth), minMovementRight(rx, ry, bx, by, depth));
+        return dir < 2 ? 1 + min(minMovement(rx, ry, bx, by, depth, 2), minMovement(rx, ry, bx, by, depth, 3)) : 1 + min(minMovement(rx, ry, bx, by, depth, 0), minMovement(rx, ry, bx, by, depth, 1));
     }
-
-    public static int minMovementLeft(int rx, int ry, int bx, int by, int depth) {
-        if (depth++ >= 10) {
-            return FAIL;
-        }
-
-        boolean redEnd = false;
-        boolean blueEnd = false;
-
-        if (ry == by) {
-            if (rx - 1 == bx && board[by][bx - 1] == '#') {
-                return FAIL;
-            }
-            if (rx < bx) {
-                if ((rx = moveLeft(rx, ry)) == END) {
-                    redEnd = true;
-                }
-                if (!redEnd){
-                    board[ry][rx] = '#';
-                }
-                if ((bx = moveLeft(bx, by)) == END) {
-                    blueEnd = true;
-                }
-                if (!redEnd) {
-                    board[ry][rx] = '.';
-                }
-            } else {
-                if ((bx = moveLeft(bx, by)) == END) {
-                    blueEnd = true;
-                }
-                if (!blueEnd) {
-                    board[by][bx] = '#';
-                }
-                if ((rx = moveLeft(rx, ry)) == END) {
-                    redEnd= true;
-                }
-                if (!blueEnd) {
-                    board[by][bx] = '.';
-                }
-            }
-        } else {
-            if ((rx = moveLeft(rx, ry)) == END) {
-                redEnd = true;
-            }
-            if ((bx = moveLeft(bx, by)) == END) {
-                blueEnd = true;
-            }
-        }
-        
-        if (blueEnd) {
-            return FAIL;
-        } else if (redEnd) {
-            return 1;
-        }
-
-        return 1 + min(minMovementUp(rx, ry, bx, by, depth), minMovementDown(rx, ry, bx, by, depth));
-    }
-
-    public static int minMovementRight(int rx, int ry, int bx, int by, int depth) {
-        if (depth++ >= 10) {
-            return FAIL;
-        }
-
-        boolean redEnd = false;
-        boolean blueEnd = false;
-
-        if (ry == by) {
-            if (rx + 1 == bx && board[by][bx + 1] == '#') {
-                return FAIL;
-            }
-            if (rx > bx) {
-                if ((rx = moveRight(rx, ry)) == END) {
-                    redEnd = true;
-                } 
-                if (!redEnd) {
-                    board[ry][rx] = '#';
-                }
-                if ((bx = moveRight(bx, by)) == END) {
-                    blueEnd = true;
-                }
-                if (!redEnd) {
-                    board[ry][rx] = '.';
-                }
-            } else {
-                if ((bx = moveRight(bx, by)) == END) {
-                    blueEnd = true;
-                }
-                if (!blueEnd) {
-                    board[by][bx] = '#';
-                }
-                if ((rx = moveRight(rx, ry)) == END) {
-                    redEnd= true;
-                }
-                if (!blueEnd) {
-                    board[by][bx] = '.';
-                }
-            }
-        } else {
-            if ((rx = moveRight(rx, ry)) == END) {
-                redEnd = true;
-            }
-            if ((bx = moveRight(bx, by)) == END) {
-                blueEnd = true;
-            }
-        }
-        
-        if (blueEnd) {
-            return FAIL;
-        } else if (redEnd) {
-            return 1;
-        }
-
-        return 1 + min(minMovementUp(rx, ry, bx, by, depth), minMovementDown(rx, ry, bx, by, depth));
-    }
-
 
     public static int movementCount(int rx, int ry, int bx, int by) {        
-        return min(minMovementUp(rx, ry, bx, by, 0),
-                minMovementDown(rx, ry, bx, by, 0),
-                minMovementLeft(rx, ry, bx, by, 0),
-                minMovementRight(rx, ry, bx, by, 0)
+        return min(minMovement(rx, ry, bx, by, 0, 0),
+                minMovement(rx, ry, bx, by, 0, 1),
+                minMovement(rx, ry, bx, by, 0, 2),
+                minMovement(rx, ry, bx, by, 0, 3)
                 );
     }
 
