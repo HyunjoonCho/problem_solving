@@ -5,15 +5,46 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 class P14500 {
+
     static int[][] tetromino = {
-        {0, 0, 1, -1, 0, 1, 0, 0, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1}, // dy(row change)
-        {1, 1, 0, 0, 1, 0, -1, 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, 1, 0}, // dx(column change)
-        {1, 0, 1, 0, 1, 0, -1, 1, 0, -1, 0, 0, 1, 0, -1, 1, 0, -1, 0}, // dy
-        {0, 1, 0, 1, 0, -1, 0, 0, -1, 0, 1, 1, 0, -1, 0, 0, -1, 0, -1}, // dx
-        {0, 0, 1, 0, 1, 0, -1, -1, 1, 1, -1, 1, 0, -1, 0, 0, 1, 0, -1}, // dy
-        {-1, 1, 0, 1, 0, -1, 0, 1, 1, -1, -1, 0, -1, 0, 1, 1, 0, 1, 0} // dx
+        {0, 1, 1, 0, 0, -1}, 
+        {0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0},
+        {-1, 0, 0, 1, 0, 1},
+        {0, 1, 1, 0, 1, 0},
+        {1, 0, 0, -1, 0, -1},
+        {0, -1, -1, 0, -1, 0},
+        {0, 1, 1, 0, -1, 1},
+        {1, 0, 0, -1, 1, 1},
+        {0, -1, -1, 0, 1, -1},
+        {-1, 0, 0, 1, -1, -1}, 
+        {0, 1, 0, 1, 1, 0},
+        {1, 0, 1, 0, 0, -1}, 
+        {0, -1, 0, -1, -1, 0}, 
+        {-1, 0, -1, 0, 0, 1}, 
+        {0, 1, 1, 0, 0, 1},
+        {1, 0, 0, -1, 1, 0}, 
+        {0, 1, -1, 0 ,0, 1},
+        {-1, 0, 0, -1, -1, 0}
     };
-    static int height, width;
+/*
+[0] [1], [2] [3], [4] [5] = ordered movement (dy, dx pair)
+since row-oriented
+
+S 1
+3 2 
+
+S 1 2 3 * 2(rotation)
+
+1 2 3   S 1 3   S 1 2
+S         2         3   * 4(rotation)
+
+S 1       2 3
+  2 3   S 1    * 2(rotation)
+ */
+
+
+    static int height, width, x, y, sum;
     static int[][] board;
 
     public static void main(String[] args) throws IOException {
@@ -38,56 +69,47 @@ class P14500 {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 for (int t = 0; t < 19; t++) {
-                    int x = j;
-                    int y = i;
-    
-                    int sum = board[y][x];
-                    y += tetromino[0][t];
-                    x += tetromino[1][t];
-                    if (x < 0 || x > width - 1 || y < 0 || y > height - 1 ) {
-                        continue;
+                    x = j;
+                    y = i;    
+                    sum = board[y][x];
+
+                    for (int c = 0; c < 3; c++) {
+                        if (moveBoard(c, t)) {
+                            break;
+                        }
                     }
-                    sum += board[y][x];
-                    y += tetromino[2][t];
-                    x += tetromino[3][t];
-                    if (x < 0 || x > width - 1 || y < 0 || y > height - 1 ) {
-                        continue;
-                    }
-                    sum += board[y][x];
-                    y += tetromino[4][t];
-                    x += tetromino[5][t];
-                    if (x < 0 || x > width - 1 || y < 0 || y > height - 1 ) {
-                        continue;
-                    }
-                    sum += board[y][x];
-    
-                    if (sum > max) {
-                        max = sum;
-                    }
+                    
+                    max = sum > max ? sum : max;
                 }
             }
         }
         return max;
     }
+
+    public static boolean moveBoard(int moveCount, int tetrominoCase) {
+        y += tetromino[tetrominoCase][moveCount * 2];
+        x += tetromino[tetrominoCase][moveCount * 2 + 1];
+
+        if (outOfBoard(x, y)) {
+            return true;
+        }
+        sum += board[y][x];
+
+        return false;
+    }
+
+    public static boolean outOfBoard(int x, int y) {
+        if (x < 0 || x > width - 1 || y < 0 || y > height - 1 ) {
+            return true;
+        }
+        return false;
+    }
 }
-
-/*
-S 0
-0 0 
-
-S 0 0 0 * 2(rotation)
-
-0 0 0   S 0 0   S 0 0
-S         0         0   * 4(rotation)
-
-S 0       0 0
-  0 0   S 0    * 2(rotation)
-
- */
 
 /*
 greedy works? i.e. max of 4 == max of 3 + n
 No 
+3 4 
 4 4 4 1
 1 1 1 1  
 3 4 3 4
