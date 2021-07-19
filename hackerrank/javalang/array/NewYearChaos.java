@@ -4,24 +4,32 @@ public class NewYearChaos {
 
     // Complete the minimumBribes function below.
     static void minimumBribes(int[] q) {
-        int numBribes = 0;
+        int sumDiff = 0, maskedSwap = 0;
         
         for (int i = 0; i < q.length; i++) {
-            int curr = q[i];
-            int currBribes = 0;
-            for (int j = i + 1; j < q.length; j++) {
-                if (q[j] < curr) {
-                    currBribes++;
-                }
-                if (currBribes == 3) {
-                    System.out.println("Too chaotic");
-                    return;
-                }
-            } 
-            numBribes += currBribes;
+            if (i < q[i] - 3) {
+                System.out.println("Too chaotic");
+                return;            
+            }
+            sumDiff += abs(q[i] - 1, i);
+            if (q[i] <= i + 1) {
+                // bigger-in-front && smaller-in-backward -> masked swap
+                if (i >= 1 && q[i - 1] > q[i]) {
+                    for (int j = i + 1; j < q.length; j++) {
+                        if (q[j] < q[i]) {
+                            maskedSwap++;
+                            break;
+                        }
+                    }                 
+                } 
+            }
         }
         
-        System.out.println(numBribes);
+        System.out.println(maskedSwap + sumDiff/2);
+    }
+
+    private static int abs(int x, int y) {
+        return x < y? y - x : x - y;
     }
 
     private static final Scanner scanner = new Scanner(System.in);
