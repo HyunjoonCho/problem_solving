@@ -3,7 +3,7 @@ import java.util.*;
 import java.util.stream.*;
 import static java.util.stream.Collectors.toList;
 
-class Result {
+class ArrayManipulationResult {
 
     /*
      * Complete the 'arrayManipulation' function below.
@@ -65,7 +65,7 @@ public class ArrayManipulation {
             }
         });
 
-        long result = Result.arrayManipulation(n, queries);
+        long result = ArrayManipulationResult.arrayManipulation(n, queries);
 
         System.out.println(String.valueOf(result));
 
