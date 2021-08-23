@@ -10,7 +10,7 @@ for _ in range(M):
         adjList[usr1].append(usr2)
         adjList[usr2].append(usr1)
 
-distMap = [[N] * N for _ in range (N)]
+distMap = [[N] * N for _ in range (N)] 
 queue = deque()
 for usr in range(N):
     queue.append(usr)
@@ -21,11 +21,10 @@ for usr in range(N):
         for friend in adjList[currUsr]:
             if distMap[usr][friend] > dist:
                 distMap[usr][friend] = dist
-                distMap[friend][usr] = dist
                 queue.append(friend)
 
 currUsr = 0
-minDist = 10000
+minDist = N * N
 
 for i in range(N):
     sumDist = sum(distMap[i])
